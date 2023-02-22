@@ -1,36 +1,39 @@
 /*
 TODO LIST
 
-- Gérer l'aléatoire dans le placement des images
-- Pouvoir choisir le nombre de cartes en jeu
-- Gérer les débuts et fin de parties
 - Ajouter une animation (confetits) lors de victoire
-- Pouvoir relancer une partie
-- Gérer le bug du click deux fois sur la même image
 - Compter le nombre de coups pour gagner (stocker les stats ?)
 */
 
+// Déclarer un tableau de toutes les cartes
 let jeuTableau
-let allCards = document.querySelectorAll(".card");
 let cptClickCurrent = 0
-let dataImageShowed;
+let CardClickedId;
+const cards = ["king", "queen", "valet", "as", "kingPiq", "kingtrefle"];
+const gameBoard = document.getElementById("GameBoard");
+let nbPairesOnGame;
+let cptCartesTrouvees = 0;
 
-allCards.forEach(card => {
-  card.addEventListener("click", function(){
-    playGame(card);
-  })
+document.getElementById("playButton").addEventListener("click", function() {
+  let nbCardInput = document.getElementById("nbCardInput")
+  initGame(nbCardInput.value)
 })
 
-function playGame(card){
-  cptClickCurrent ++;
-  
-  if(cptClickCurrent == 1) {
+// Cette fonction gère ce qu'il se passe quand on clique sur une carte
+function clickOnCardEvent(card) {
+  let allCards = document.querySelectorAll(".card");
+  if (card.classList.contains("finded")) {
+    return
+  }
+  cptClickCurrent++;
+
+  if (cptClickCurrent == 1) {
     //premier click, je cache les images trouvées avant
     allCards.forEach(card => {
-      if(card.classList.contains("finded")){
+      if (card.classList.contains("finded")) {
         //c'est une carte trouvée
       }
-      else{
+      else {
         //pas trouvée, il faut qu'elles soient masquées
         card.classList.add("hidden")
       }
@@ -38,27 +41,78 @@ function playGame(card){
     //j'affiche la carte que je viens de cliquer
     card.classList.remove("hidden");
     //je stocke la réponse derrière la carte
-    dataImageShowed = card.dataset.image;
+    CardClickedId = card.id;
   }
-  else if(cptClickCurrent == 2){
+  else if (cptClickCurrent == 2) {
     // 2e click, je vérifie si l'image à été trouvée
-    card.classList.remove("hidden");
-    if(dataImageShowed == card.dataset.image){
-      allCards.forEach(card => {
-        if(card.classList.contains("hidden")){
-          //c'est une carte cachée
-        }
-        else{
-          card.classList.add("finded")
-          //c'est une carte trouvée
-        }
-      })
+    if (CardClickedId == card.id) {
+      cptClickCurrent = 1;
     }
-    
-    cptClickCurrent = 0;
-    dataImageShowed = "";
+    else {
+      card.classList.remove("hidden");
+      let cardClickedBefore = document.getElementById(CardClickedId)
+      if (cardClickedBefore.dataset.image == card.dataset.image) {
+        allCards.forEach(card => {
+          if (card.classList.contains("hidden")) {
+            //c'est une carte cachée : je ne fais rien
+          }
+          else if(!card.classList.contains("finded")){
+            card.classList.add("finded");
+            cptCartesTrouvees++;
+          }
+        })
+      }
 
-    //compter les cards qui n'ont pas la classe "finded"
-    // si = 0 alors on a gagné, le jeu est fini
+      cptClickCurrent = 0;
+      CardClickedId = "";
+    }
+    if(cptCartesTrouvees == nbPairesOnGame*2) {
+      //Animation rigolote
+      alert("Gagné !");
+    }
   }
+}
+
+function initGame(nbPaires) {
+  gameBoard.innerHTML = "";
+  nbPairesOnGame = nbPaires;
+  cptCartesTrouvees = 0;
+  let gameCard = [];
+  for (let i = 0; i < nbPaires; i++) {
+    gameCard.push([cards[i], false]);
+    gameCard.push([cards[i], false]);
+  }
+  console.log(gameCard);
+
+  for (let i = 0; i < gameCard.length; i++) {
+    let cardIsPositionned = false
+    while (!cardIsPositionned) {
+      let randomNumber = getRandomArbitrary(0, gameCard.length)
+      if (gameCard[randomNumber][1] == false) {
+        cardIsPositionned = true;
+        gameCard[randomNumber][1] = true;
+        // Positionner la carte dans le HTML, et l'inclure.
+        let cardHtml = getHtmlCodeCard(gameCard[randomNumber][0], i);
+        gameBoard.innerHTML += cardHtml;
+      }
+    }
+  }
+  // J'ajoute l'évènement de clique sur toutes les cartes
+  let allCards = document.querySelectorAll(".card");
+  allCards.forEach(card => {
+    card.addEventListener("click", function() {
+      clickOnCardEvent(card);
+    })
+  })
+}
+
+function getRandomArbitrary(min, max) {
+  return Math.floor(Math.random() * (max - min) + min);
+}
+
+function getHtmlCodeCard(nomCard, id) {
+  return ` <div class="card hidden" id="${id}" data-image="${nomCard} ">
+          <img src="/img/${nomCard}.png"/>
+        </div> ` ;
+
 }
