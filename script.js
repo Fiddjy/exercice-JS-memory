@@ -56,7 +56,7 @@ function clickOnCardEvent(card) {
           if (card.classList.contains("hidden")) {
             //c'est une carte cachée : je ne fais rien
           }
-          else if(!card.classList.contains("finded")){
+          else if (!card.classList.contains("finded")) {
             card.classList.add("finded");
             cptCartesTrouvees++;
           }
@@ -66,15 +66,16 @@ function clickOnCardEvent(card) {
       cptClickCurrent = 0;
       CardClickedId = "";
     }
-    if(cptCartesTrouvees == nbPairesOnGame*2) {
+    if (cptCartesTrouvees == nbPairesOnGame * 2) {
       //Animation rigolote
-      alert("Gagné !");
+      setAnimationWin()
     }
   }
 }
 
 function initGame(nbPaires) {
   gameBoard.innerHTML = "";
+  stopAnimation()
   nbPairesOnGame = nbPaires;
   cptCartesTrouvees = 0;
   let gameCard = [];
@@ -82,7 +83,6 @@ function initGame(nbPaires) {
     gameCard.push([cards[i], false]);
     gameCard.push([cards[i], false]);
   }
-  console.log(gameCard);
 
   for (let i = 0; i < gameCard.length; i++) {
     let cardIsPositionned = false
@@ -115,4 +115,23 @@ function getHtmlCodeCard(nomCard, id) {
           <img src="/img/${nomCard}.png"/>
         </div> ` ;
 
+}
+
+function setAnimationWin() {
+  let animateDiv = document.getElementById("allconfettis");
+  animateDiv.innerHTML = "";
+
+  for (let i = 0; i < 100; i++) {
+    let confeti = document.createElement("div");
+    confeti.classList.add("confetti");
+    confeti.style.left = getRandomArbitrary(0, 100) + '%';
+    confeti.style.animationDelay = 50 * i + "ms";
+    confeti.style.backgroundColor = '#' + (Math.random() * 0xFFFFFF << 0).toString(16);
+    animateDiv.appendChild(confeti);
+  }
+}
+
+function stopAnimation() {
+  let animateDiv = document.getElementById("allconfettis");
+  animateDiv.innerHTML = "";
 }
