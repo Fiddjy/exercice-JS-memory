@@ -1,11 +1,3 @@
-/*
-TODO LIST
-
-- Compter le nombre de coûts pour gagner (stocker des stats en cookie ?)
-
-*/
-
-
 //déclarer un tableau de toutes les cartes
 let jeuTableau;
 
